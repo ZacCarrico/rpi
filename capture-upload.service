@@ -1,0 +1,24 @@
+[Unit]
+Description=Camera Capture and Upload Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi
+ExecStart=/home/pi/capture_and_upload.sh
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Resource limits to prevent system exhaustion
+MemoryMax=200M
+CPUQuota=50%
+
+# Ensure log file is writable
+ExecStartPre=/bin/sh -c 'touch /var/log/capture_and_upload.log && chown pi:pi /var/log/capture_and_upload.log'
+
+[Install]
+WantedBy=multi-user.target
