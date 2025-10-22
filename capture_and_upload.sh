@@ -46,6 +46,12 @@ check_disk_space() {
 mkdir -p "$IMG_DIR"
 log "Starting capture and upload service"
 
+# Clean up any stuck processes from previous runs
+log "Cleaning up any stuck processes from previous runs"
+pkill -9 libcamera-still 2>/dev/null || true
+pkill -9 gsutil 2>/dev/null || true
+sleep 2
+
 # Trap to cleanup on exit
 trap 'log "Service stopped"; exit 0' SIGTERM SIGINT
 
@@ -56,8 +62,8 @@ ITERATION=0
 while true; do
     ITERATION=$((ITERATION + 1))
 
-    # Periodic cleanup every 60 iterations (roughly every minute)
-    if [ $((ITERATION % 60)) -eq 0 ]; then
+    # Periodic cleanup every 30 iterations (roughly every minute with 2s sleep)
+    if [ $((ITERATION % 30)) -eq 0 ]; then
         cleanup_stuck_processes
         check_disk_space || continue
     fi
@@ -65,8 +71,8 @@ while true; do
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     IMG_FILE="${IMG_DIR}/img_${TIMESTAMP}.jpg"
 
-    # Capture with timeout (5 second max wait)
-    if timeout 5s libcamera-still --width 432 --height 368 --output "$IMG_FILE" --nopreview --timeout 1 -v0 2>/dev/null; then
+    # Capture with timeout (10 second max wait, increased timeout for camera initialization)
+    if timeout 10s libcamera-still --width 432 --height 368 --output "$IMG_FILE" --nopreview --timeout 100 2>/dev/null; then
         # Verify file was created
         if [ ! -f "$IMG_FILE" ]; then
             log "ERROR: Image file not created"
@@ -88,6 +94,8 @@ while true; do
         FAILURE_COUNT=$((FAILURE_COUNT + 1))
         # Clean up any partial file
         rm "$IMG_FILE" 2>/dev/null || true
+        # Give camera extra time to recover after failure
+        sleep 3
     fi
 
     # Exit if too many consecutive failures
@@ -96,5 +104,6 @@ while true; do
         exit 1
     fi
 
-    sleep 1
+    # Wait between captures to avoid overwhelming the camera
+    sleep 2
 done
