@@ -67,7 +67,7 @@ sudo systemctl status capture-upload.service
 sudo journalctl -u capture-upload.service -f
 
 # View application log file
-tail -f /var/log/capture_and_upload.log
+tail -f ~/capture_and_upload.log
 ```
 
 ### Start/Stop/Restart
@@ -169,12 +169,12 @@ rm -rf /tmp/pose_imgs/*.jpg
 Edit `/home/pi/capture_and_upload.sh` to modify:
 
 - `IMG_DIR`: Temporary storage location (default: `/tmp/pose_imgs`)
-- `LOG_FILE`: Log file location (default: `/var/log/capture_and_upload.log`)
+- `LOG_FILE`: Log file location (default: `$HOME/capture_and_upload.log`)
 - `MAX_PROCESSES`: Maximum allowed stuck processes (default: 5)
 - `MAX_DISK_USAGE`: Maximum disk usage percentage (default: 80)
 - `GCS_BUCKET`: Google Cloud Storage bucket (default: `gs://living_room_dogs/`)
 - Image dimensions: `--width 432 --height 368`
-- Capture interval: `sleep 1` (1 second between captures)
+- Capture interval: `sleep 2` (2 seconds between captures)
 
 After editing, restart the service:
 ```bash
@@ -191,7 +191,7 @@ Consider setting up monitoring for:
 - Disk space
 
 ### Log Rotation
-The application log at `/var/log/capture_and_upload.log` will grow over time. Set up log rotation:
+The application log at `~/capture_and_upload.log` will grow over time. Set up log rotation:
 
 ```bash
 # Create logrotate config
@@ -200,7 +200,7 @@ sudo nano /etc/logrotate.d/capture-upload
 
 Add:
 ```
-/var/log/capture_and_upload.log {
+/home/pi/capture_and_upload.log {
     daily
     rotate 7
     compress
@@ -232,7 +232,7 @@ sudo systemctl daemon-reload
 
 # Remove script and logs
 rm /home/pi/capture_and_upload.sh
-sudo rm /var/log/capture_and_upload.log
+rm /home/pi/capture_and_upload.log
 
 # Clean up temporary files
 rm -rf /tmp/pose_imgs

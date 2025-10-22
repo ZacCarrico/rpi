@@ -17,8 +17,5 @@ StandardError=journal
 MemoryMax=200M
 CPUQuota=50%
 
-# Ensure log file is writable
-ExecStartPre=/bin/sh -c 'touch /var/log/capture_and_upload.log && chown pi:pi /var/log/capture_and_upload.log'
-
 [Install]
 WantedBy=multi-user.target

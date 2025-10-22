@@ -2,7 +2,7 @@
 
 # Configuration
 IMG_DIR="/tmp/pose_imgs"
-LOG_FILE="/var/log/capture_and_upload.log"
+LOG_FILE="$HOME/capture_and_upload.log"
 MAX_PROCESSES=5
 MAX_DISK_USAGE=80  # percentage
 GCS_BUCKET="gs://living_room_dogs/"
