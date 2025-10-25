@@ -78,8 +78,8 @@ while true; do
             log "ERROR: Image file not created"
             FAILURE_COUNT=$((FAILURE_COUNT + 1))
         else
-            # Upload with timeout (10 second max wait)
-            if timeout 10s gsutil -q cp "$IMG_FILE" "$GCS_BUCKET" 2>/dev/null; then
+            # Upload with timeout (30 second max wait)
+            if timeout 30s gsutil -q cp "$IMG_FILE" "$GCS_BUCKET" 2>/dev/null; then
                 rm "$IMG_FILE"
                 FAILURE_COUNT=0
             else
