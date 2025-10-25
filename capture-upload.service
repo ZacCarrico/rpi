@@ -5,9 +5,9 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=pi
-WorkingDirectory=/home/pi
-ExecStart=/home/pi/capture_and_upload.sh
+User=rpi
+WorkingDirectory=/home/rpi
+ExecStart=/home/rpi/capture_and_upload.sh
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
