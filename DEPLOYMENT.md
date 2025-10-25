@@ -15,14 +15,14 @@ This service continuously captures images from a Raspberry Pi camera and uploads
 ```bash
 # From your Mac:
 cd ~/github/rpi/
-scp capture_and_upload.sh pi@YOUR_PI_IP:/home/pi/
-scp capture-upload.service pi@YOUR_PI_IP:/tmp/
+scp capture_and_upload.sh rpi@YOUR_PI_IP:/home/rpi/
+scp capture-upload.service rpi@YOUR_PI_IP:/tmp/
 ```
 
 Or using git:
 ```bash
 # On Raspberry Pi:
-cd /home/pi
+cd /home/rpi
 git clone YOUR_REPO_URL
 # or git pull if already cloned
 ```
@@ -30,7 +30,7 @@ git clone YOUR_REPO_URL
 ### 2. Set Up the Script
 ```bash
 # On Raspberry Pi:
-cd /home/pi
+cd /home/rpi
 chmod +x capture_and_upload.sh
 
 # Test the script manually first (Ctrl+C to stop):
@@ -133,7 +133,7 @@ gcloud auth login
 sudo journalctl -u capture-upload.service -n 50
 
 # Verify script has execute permissions
-ls -l /home/pi/capture_and_upload.sh
+ls -l /home/rpi/capture_and_upload.sh
 
 # Verify script path in service file
 sudo cat /etc/systemd/system/capture-upload.service
@@ -166,7 +166,7 @@ rm -rf /tmp/pose_imgs/*.jpg
 
 ## Configuration
 
-Edit `/home/pi/capture_and_upload.sh` to modify:
+Edit `/home/rpi/capture_and_upload.sh` to modify:
 
 - `IMG_DIR`: Temporary storage location (default: `/tmp/pose_imgs`)
 - `LOG_FILE`: Log file location (default: `$HOME/capture_and_upload.log`)
@@ -200,7 +200,7 @@ sudo nano /etc/logrotate.d/capture-upload
 
 Add:
 ```
-/home/pi/capture_and_upload.log {
+/home/rpi/capture_and_upload.log {
     daily
     rotate 7
     compress
@@ -231,8 +231,8 @@ sudo rm /etc/systemd/system/capture-upload.service
 sudo systemctl daemon-reload
 
 # Remove script and logs
-rm /home/pi/capture_and_upload.sh
-rm /home/pi/capture_and_upload.log
+rm /home/rpi/capture_and_upload.sh
+rm /home/rpi/capture_and_upload.log
 
 # Clean up temporary files
 rm -rf /tmp/pose_imgs
