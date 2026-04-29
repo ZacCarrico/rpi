@@ -277,6 +277,58 @@ ip addr show wlan0 | grep "inet "
 
 The connection is saved automatically and will reconnect on future boots.
 
+## Bluetooth Audio (rpi5 + comiso-X26)
+
+### Setup
+
+Install PipeWire with Bluetooth support:
+
+```bash
+sudo apt install -y pipewire pipewire-pulse wireplumber libspa-0.2-bluetooth
+systemctl --user enable --now pipewire pipewire-pulse wireplumber
+```
+
+### Pair and connect speaker
+
+```bash
+bluetoothctl pair F4:4E:FD:2C:0B:AD
+bluetoothctl connect F4:4E:FD:2C:0B:AD
+```
+
+### Play audio
+
+```bash
+mpv --audio-device=pulse/bluez_output.F4_4E_FD_2C_0B_AD.1 --loop=inf --gapless-audio=yes brown_noise.mp3
+```
+
+Explicitly specifying `--audio-device` keeps the A2DP stream held open continuously. Without it, PipeWire may idle the stream between buffers, causing the speaker to detect inactivity and disconnect.
+
+The sink name can change after a wireplumber restart. If mpv exits immediately with an audio device error, check the current name with:
+
+```bash
+pw-cli list-objects Node 2>&1 | grep -i blue
+```
+
+Then update the `--audio-device` argument accordingly (prefix with `pulse/`).
+
+### Play/pause button on speaker
+
+The comiso-X26's play/pause button does **not** control playback on the Pi. The speaker only acts as an AVRCP target (receives commands like volume changes) — it does not send AVRCP controller commands to the source device. Attempts to bridge this via `mpv-mpris` and wireplumber's dummy AVRCP player were unsuccessful, and enabling the dummy AVRCP player (`bluez5.dummy-avrcp-player`) broke the sink name causing mpv to fail. Leave the default wireplumber config in place.
+
+### Audio crackling / interference
+
+If you hear crackling, switch the Pi to 5GHz Wi-Fi. Bluetooth and 2.4GHz Wi-Fi share the same frequency band (2.4GHz), so they interfere with each other — the radio has to timeshare, causing packet loss in the Bluetooth audio stream which manifests as crackling or dropouts. 5GHz Wi-Fi operates on a completely separate band and has no overlap with Bluetooth.
+
+### Speaker disconnects
+
+If the speaker disconnects, reconnect with:
+
+```bash
+bluetoothctl connect F4:4E:FD:2C:0B:AD
+```
+
+mpv will resume automatically once the sink is available again (or restart mpv with the command above).
+
 ## Troubleshooting
 
 ### Pi Not Appearing on Network
